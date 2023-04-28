@@ -15,6 +15,6 @@ Three.js (https://threejs.org/)
 Blender (https://www.blender.org/)
 Chart.js (https://www.chartjs.org/)
 GSAP (https://greensock.com/gsap/)
-dat.GUI (https://workshop.chromeexperiments.com/examples/gui/)
+dat.GUI (https://github.com/dataarts/dat.gui)
 License
 This project is licensed under the MIT License. See the LICENSE file for details.
