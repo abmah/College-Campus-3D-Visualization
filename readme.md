@@ -29,7 +29,7 @@ npm run build
    <li><a href="https://www.blender.org/" target="_new">Blender</a></li>
    <li><a href="https://www.chartjs.org/" target="_new">Chart.js</a></li>
    <li><a href="https://greensock.com/gsap/" target="_new">GSAP library</a></li>
-   <li><a href="https://github.com/dataarts/dat.gui" target="_new">dat.GUI</a></li>
+   <li><a href="https://lil-gui.georgealways.com/" target="_new">dat.GUI</a></li>
 </ul>
 <h2>License</h2>
 <p>This project is licensed under the MIT License. See the <code>LICENSE</code> file for details.</p>
