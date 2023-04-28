@@ -9,7 +9,7 @@ How to Run
 To run the project, simply open the index.html file in a web browser that supports WebGL. You can use the pointer lock controls to navigate through the campus and interact with the data visualizations.
 
 Credits
-This project was created by [Your Name] as a college project. Special thanks to the following libraries used in the project:
+This project was created by me as a college project. Special thanks to the following libraries used in the project:
 
 Three.js (https://threejs.org/)
 Blender (https://www.blender.org/)
