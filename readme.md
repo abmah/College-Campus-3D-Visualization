@@ -12,11 +12,15 @@ npm install
 
 # Run the local server at localhost:8080
 
+```
 npm run dev
+```
 
 # Build for production in the dist/ directory
 
+```
 npm run build
+```
 
 <h2>Credits</h2>
 <p>This project was created by me as a college project. Special thanks to the following libraries used in the project:</p>
