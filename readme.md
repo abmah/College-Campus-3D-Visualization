@@ -6,7 +6,9 @@
 
 # Install dependencies (only the first time)
 
+```
 npm install
+```
 
 # Run the local server at localhost:8080
 
@@ -27,7 +29,3 @@ npm run build
 </ul>
 <h2>License</h2>
 <p>This project is licensed under the MIT License. See the <code>LICENSE</code> file for details.</p>
-
-```
-
-```
