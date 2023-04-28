@@ -3,8 +3,9 @@
 <p>The pointer lock controls allow the user to experience a first-person view of the college and walk around the campus. In addition, Chart.js and raycasting are used to display interactive data above the buildings. The data includes the female-to-male ratio and student year distribution.</p>
 <p>The GSAP library is used to add animation effects to the UI components, and dat.GUI provides controls for tweaking the settings of the application.</p>
 <h2>How to Run</h2>
-```bash
+
 # Install dependencies (only the first time)
+
 npm install
 
 # Run the local server at localhost:8080
@@ -14,8 +15,6 @@ npm run dev
 # Build for production in the dist/ directory
 
 npm run build
-
-```
 
 <h2>Credits</h2>
 <p>This project was created by me as a college project. Special thanks to the following libraries used in the project:</p>
@@ -29,5 +28,6 @@ npm run build
 <h2>License</h2>
 <p>This project is licensed under the MIT License. See the <code>LICENSE</code> file for details.</p>
 
+```
 
 ```
