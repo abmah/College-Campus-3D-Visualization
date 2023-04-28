@@ -1,0 +1,203 @@
+* {
+    margin: 0;
+    padding: 0;
+
+}
+
+html,
+body {
+    overflow: hidden;
+    /* font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; */
+    /* change space between each letter*/
+
+    overflow-x: hidden;
+    font-size: 13px;
+    height: 100vh;
+    width: 100vw;
+}
+
+.webgl {
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+
+}
+
+.loading-bar {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    height: 2px;
+    background: #ffffff;
+    transform: scaleX(0.3);
+    transform-origin: top left;
+    transition: transform 0.5s;
+    z-index: 1;
+}
+
+.loading-bar.ended {
+    transform: scaleX(0);
+    transform-origin: 100% 0;
+    transition: transform 1.5s ease-in-out;
+}
+
+
+.point {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+    z-index: 100;
+}
+
+
+.point .label {
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    width: 80px;
+
+    transform: scale(0, 0);
+    transition: transform 0.3s;
+    padding: 2px;
+}
+
+.point .label-text {
+    border-radius: 10px;
+
+
+    background: #00000077;
+    /* border: 1px solid #ffffff77; */
+    color: #ffffff;
+
+    text-align: center;
+
+    font-weight: 400;
+
+    cursor: help;
+}
+
+.point .text {
+    position: absolute;
+    top: 30px;
+    left: -120px;
+    width: 200px;
+    padding: 20px;
+    border-radius: 4px;
+    background: #00000077;
+    border: 1px solid #ffffff77;
+    color: #ffffff;
+    line-height: 1.3em;
+
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+
+.point:hover .text {
+    opacity: 1;
+}
+
+.point.visible .label {
+    transform: scale(1, 1);
+    pointer-events: all;
+}
+
+.bin {
+    height: 90px;
+}
+
+
+
+.instructions {
+    z-index: 100000000000000000000000000000000;
+    color: white;
+    position: absolute;
+    top: 1px;
+}
+
+
+.college-intro-name {
+    color: white;
+    font-size: 5vw;
+    z-index: 4;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* make text not break*/
+    white-space: nowrap;
+
+
+}
+
+
+* {
+    font-family: Helvetica;
+    color: white;
+}
+
+:root {
+    --headingSize: 55px;
+    --background-color: black;
+}
+
+
+
+.intro-text {
+    margin: 0;
+    letter-spacing: -1px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5vw;
+    white-space: nowrap;
+    opacity: 0;
+}
+
+.fade-out {
+    animation: fade-out 2s ease-in-out;
+}
+
+.fade-in {
+    animation: fade-in 2s ease-in-out;
+}
+
+@keyframes fade-out {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+
+@keyframes fade-in {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+
+
+}
+
+
+.myChart {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* pointer-events: none; */
+    z-index: 100;
+
+}
