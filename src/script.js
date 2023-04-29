@@ -313,7 +313,7 @@ gui.addColor(debugObject, 'clearColor').onChange(() => {
 })
 renderer.setClearColor(debugObject.clearColor);
 
-camera.position.set(-3.3360582631181206, 3.277317753766088, -17.49707990429836);
+camera.position.set(-3.3360582631181206, 0.277317753766088, -17.49707990429836);
 camera.rotation.set(-2.8081273987457633, 0.009255851290419384, 3.138386471491446);
 debugObject.walkingSpeed = 0.3;
 
@@ -628,6 +628,11 @@ const cameraTweens = [
     {
         name: "Tween Camera building",
         position: new THREE.Vector3(59.97462923030914, 7.9301704228760785, 12.65022837169855),
+        rotation: new THREE.Euler(-0.6943327446859502, -1.722623874254577, 0.033612252107971, "XYZ")
+    },
+    {
+        name: "intro camera tween",
+        position: new THREE.Vector3(-4.353140659353707, 6.937502312233253, -30.519084253413453),
         rotation: new THREE.Euler(-0.6943327446859502, -1.722623874254577, 0.033612252107971, "XYZ")
     }
 ];

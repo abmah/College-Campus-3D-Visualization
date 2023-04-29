@@ -23,7 +23,7 @@ npm run build
 ```
 
 <h2>Credits</h2>
-<p>This project was created by me as a college project. Special thanks to the following libraries used in the project:</p>
+<p>This project was created by me as a college project. Special thanks to the following technologies used in the project:</p>
 <ul>
    <li><a href="https://threejs.org/" target="_new">Three.js</a></li>
    <li><a href="https://www.blender.org/" target="_new">Blender</a></li>
