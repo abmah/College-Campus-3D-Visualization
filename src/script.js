@@ -7,9 +7,23 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { gsap } from "gsap";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Chart from "chart.js/auto";
-import firefliesVertexShader from "./shaders/fireflies/vertex.glsl";
-import firefliesFragmentShader from "./shaders/fireflies/fragment.glsl";
 
+// chat bot ai
+let chat_icon = document.querySelector(".chat-bot-icon");
+let chat_box = document.querySelector(".chat-bot-box");
+
+
+
+
+
+// end chat bot ai
+
+chat_icon.addEventListener("click", () => {
+    chat_box.classList.toggle("active");
+});
+
+
+// init
 let sceneReady = false;
 let animationsReady = false;
 
@@ -106,6 +120,8 @@ const loadingManager = new THREE.LoadingManager(
 
             // sceneReady = true;
             animationsReady = true;
+            changeControls()
+            tweenCameraToPosition(cameraTweens[3].position, 5)
         }, 500);
     },
 
@@ -126,55 +142,12 @@ const loadingManager = new THREE.LoadingManager(
 const debugObject = {};
 const gui = new dat.GUI();
 
+
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 const scene = new THREE.Scene();
-
-
-/**
- * Fireflies
- */
-// Geometry
-const firefliesGeometry = new THREE.BufferGeometry()
-const firefliesCount = 30
-const positionArray = new Float32Array(firefliesCount * 3)
-const scaleArray = new Float32Array(firefliesCount)
-
-for (let i = 0; i < firefliesCount; i++) {
-    positionArray[i * 3 + 0] = (Math.random() - 0.5) * 4
-    positionArray[i * 3 + 1] = Math.random() * 1.5
-    positionArray[i * 3 + 2] = (Math.random() - 0.5) * 4
-
-    scaleArray[i] = Math.random()
-}
-
-firefliesGeometry.setAttribute('position', new THREE.BufferAttribute(positionArray, 3))
-firefliesGeometry.setAttribute('aScale', new THREE.BufferAttribute(scaleArray, 1))
-
-// Material
-const firefliesMaterial = new THREE.ShaderMaterial({
-    uniforms:
-    {
-        uTime: { value: 0 },
-        uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
-        uSize: { value: 100 }
-    },
-    vertexShader: firefliesVertexShader,
-    fragmentShader: firefliesFragmentShader,
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
-})
-
-gui.add(firefliesMaterial.uniforms.uSize, 'value').min(0).max(5000).step(1).name('firefliesSize')
-
-
-// Points
-const fireflies = new THREE.Points(firefliesGeometry, firefliesMaterial)
-scene.add(fireflies)
-
 
 /**
  * Loaders
@@ -200,6 +173,7 @@ const fovControl = gui.add(camera, 'fov', 1, 180).name('FOV');
 fovControl.onChange(() => {
     camera.updateProjectionMatrix();
 });
+gui.add(camera.position, 'y', -10, 10, 0.01).name('Camera X');
 
 scene.add(camera);
 
@@ -256,6 +230,9 @@ gltfLoader.load("baking5.glb", (gltf) => {
     ['Cube005', createMaterial("car.jpg")]
     ]);
 
+
+
+
     gltf.scene.traverse((child) => {
         const objectMaterial = objectMaterials.get(child.name);
         if (objectMaterial) {
@@ -272,6 +249,29 @@ gltfLoader.load("baking5.glb", (gltf) => {
 
 
 });
+
+
+// Light
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(0, 10, 5);
+directionalLight.castShadow = true;
+directionalLight.shadow.camera.top = 2;
+directionalLight.shadow.camera.right = 2;
+directionalLight.shadow.camera.bottom = -2;
+directionalLight.shadow.camera.left = -2;
+directionalLight.shadow.mapSize.set(1024, 1024);
+// adjust near and far planes for shadow camera
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 50;
+
+
+scene.add(directionalLight);
+
+
+
 
 
 /**
@@ -313,9 +313,10 @@ gui.addColor(debugObject, 'clearColor').onChange(() => {
 })
 renderer.setClearColor(debugObject.clearColor);
 
-camera.position.set(-3.3360582631181206, 0.277317753766088, -17.49707990429836);
-camera.rotation.set(-2.8081273987457633, 0.009255851290419384, 3.138386471491446);
+// pointer lock controls
 debugObject.walkingSpeed = 0.3;
+
+gui.add(debugObject, 'walkingSpeed', 0.1, 1, 0.01);
 
 const controls = new PointerLockControls(camera, document.body);
 let moveForward = false;
@@ -618,47 +619,56 @@ const cameraTweens = [
     {
         name: "Tween Camera",
         position: new THREE.Vector3(-3.2483701758623527, 13.634168551463912, -46.812826651518506),
-        rotation: new THREE.Euler(-3.0221365120661337, -0.04931166441399463, -3.135676359942443, "XYZ")
+        duration: 2
     },
     {
         name: "Tween Camera to Car",
         position: new THREE.Vector3(-23.159590228823392, 0.5609239970941227, 2.693002726644136),
-        rotation: new THREE.Euler(-0.6943327446859502, -1.722623874254577, 0.033612252107971, "XYZ")
+        duration: 2
     },
     {
         name: "Tween Camera building",
         position: new THREE.Vector3(59.97462923030914, 7.9301704228760785, 12.65022837169855),
-        rotation: new THREE.Euler(-0.6943327446859502, -1.722623874254577, 0.033612252107971, "XYZ")
+        duration: 2
     },
     {
         name: "intro camera tween",
-        position: new THREE.Vector3(-4.353140659353707, 6.937502312233253, -30.519084253413453),
-        rotation: new THREE.Euler(-0.6943327446859502, -1.722623874254577, 0.033612252107971, "XYZ")
+        position: new THREE.Vector3(-1.353140659353707, 6.937502312233253, -30.519084253413453),
+        duration: 2
     }
 ];
 
-const duration = 1;
-const easing = "power2.inOut";
+const easingTypes = [
+    "power0",
+    "power1",
+    "power2",
+    "power3",
+    "power4",
+    "linear",
+    "none",
+    "rough",
+    "slow",
+    "stepped"
+];
 
-function tweenCameraToPosition(position, rotation) {
+let currentEasingType = easingTypes[2];
+
+
+
+function tweenCameraToPosition(position, duration) {
     gsap.to(camera.position, duration, {
         x: position.x,
         y: position.y,
         z: position.z,
-        ease: easing,
+        ease: currentEasingType,
     });
-    gsap.to(camera.rotation, duration, {
-        x: rotation.x,
-        y: rotation.y,
-        z: rotation.z,
-        ease: easing,
-    });
+
 }
 
 cameraTweens.forEach(tween => {
     const button = {
         trigger: function () {
-            tweenCameraToPosition(tween.position, tween.rotation);
+            tweenCameraToPosition(tween.position, tween.duration);
         },
     };
     gui.add(button, "trigger").name(tween.name);
@@ -673,27 +683,60 @@ const positionButton = {
 };
 gui.add(positionButton, "trigger").name("log pos");
 
+gui.add({ easingType: currentEasingType }, "easingType", easingTypes).onChange(value => {
+    currentEasingType = value;
+});
 
 // controls
-let orbit
+let currentControls = null; // to keep track of the current control instance
+let orbit = false;
 const orbitButton = {
     trigger: function () {
-        // dispose of the PointerLockControls instance
-        controls.dispose();
-        // create the OrbitControls instance
-        orbit = new OrbitControls(camera, renderer.domElement);
-        orbit.enableDamping = true;
+        // dispose of the current control instance
+        changeControls()
     },
 };
 
-gui.add(orbitButton, 'trigger').name('Orbit Controls');
+function changeControls() {
+    if (currentControls) {
+        currentControls.dispose();
+    }
+    // create the OrbitControls instance
+    currentControls = new OrbitControls(camera, renderer.domElement);
+    orbit = true;
+    currentControls.enableDamping = true;
+}
 
+const pointerLockButton = {
+    trigger: function () {
+        // dispose of the current control instance
+        if (currentControls) {
+            currentControls.dispose();
+        }
+        // create the PointerLockControls instance
+        orbit = false;
+        currentControls = new PointerLockControls(camera, document.body);
+
+    },
+};
+gui.add(orbitButton, 'trigger').name('Orbit Controls');
+gui.add(pointerLockButton, 'trigger').name('Pointer Lock Controls');
+
+
+// camera positioning
+camera.position.set(.87, 51, -97);
 
 
 // tick function
 
 const clock = new THREE.Clock();
 let oldElapsedTime = 0;
+
+console.log(gui)
+gui.close();
+
+
+
 
 const tick = () => {
     // Calculate elapsed time and delta time
@@ -702,8 +745,6 @@ const tick = () => {
     oldElapsedTime = elapsedTime;
 
 
-    // Update fireflies
-    firefliesMaterial.uniforms.uTime.value = elapsedTime;
 
     // Update controls if locked
     if (controls.isLocked === true) {
@@ -728,7 +769,7 @@ const tick = () => {
 
     // Update orbit controls
     if (orbit) {
-        orbit.update();
+        currentControls.update();
     }
 
     // Update animations
@@ -772,7 +813,6 @@ const tick = () => {
             }
         }
     }
-
 
     // Request next animation frame
     window.requestAnimationFrame(tick);
