@@ -23,6 +23,7 @@
     "mini-css-extract-plugin": "^2.4.3",
     "portfinder-sync": "0.0.2",
     "raw-loader": "^4.0.2",
+    "socket.io-client": "^4.6.1",
     "style-loader": "^3.3.1",
     "three": "^0.134.0",
     "webpack": "^5.60.0",

@@ -1,8 +1,11 @@
 * {
     margin: 0;
     padding: 0;
-
+    font-family: Helvetica;
+    color: white;
 }
+
+
 
 html,
 body {
@@ -60,16 +63,9 @@ body {
 
 .point .label-text {
     border-radius: 10px;
-
-
     background: #00000077;
-    /* border: 1px solid #ffffff77; */
     color: #ffffff;
-
     text-align: center;
-
-    font-weight: 400;
-
     cursor: help;
 }
 
@@ -104,9 +100,8 @@ body {
 }
 
 
-
 .instructions {
-    z-index: 100000000000000000000000000000000;
+    z-index: 1;
     color: white;
     position: absolute;
     top: 1px;
@@ -122,73 +117,49 @@ body {
 }
 
 .college-intro-name {
-    color: white;
-    font-size: 5vw;
+    color: rgb(255, 255, 255);
+    font-size: 7vw;
     z-index: 4;
     position: absolute;
-    top: 50%;
+    top: 18%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* make text not break*/
     white-space: nowrap;
-
-
-}
-
-
-* {
-    font-family: Helvetica;
-    color: white;
-}
-
-:root {
-    --headingSize: 55px;
-    --background-color: black;
-}
-
-
-
-.intro-text {
-    margin: 0;
-    letter-spacing: -1px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 5vw;
-    white-space: nowrap;
+    pointer-events: none;
     opacity: 0;
+
+
 }
 
-.fade-out {
-    animation: fade-out 2s ease-in-out;
+.college-intro-name.cin-init {
+    animation: fade-in 2s ease-in-out forwards;
 }
-
-.fade-in {
-    animation: fade-in 2s ease-in-out;
-}
-
-@keyframes fade-out {
-    0% {
-        opacity: 0;
-    }
-
-    50% {
-        opacity: 1;
-    }
-
-    100% {
-        opacity: 0;
-    }
-}
-
 
 @keyframes fade-in {
     0% {
         opacity: 0;
+        top: 18%;
+
+    }
+
+    50% {
+        opacity: 1;
+        top: 18%;
     }
 
     100% {
+        opacity: 1;
+        top: 10%;
+    }
+}
+
+
+@keyframes fade-out {
+    100% {
+        opacity: 0;
+    }
+
+    0% {
         opacity: 1;
     }
 
@@ -200,7 +171,6 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    /* pointer-events: none; */
     z-index: 100;
 
 }
@@ -240,8 +210,6 @@ body {
     opacity: 0;
     transform: scale(0.8);
     pointer-events: none;
-    padding: 5px;
-
 }
 
 .chat-bot-box.active {
@@ -250,48 +218,70 @@ body {
     pointer-events: all;
 }
 
-.conversation-container {
+.conversation {
     position: relative;
+    overflow-y: scroll;
+    height: 77%;
+}
+
+.conversation::-webkit-scrollbar {
+    width: 2px;
+}
+
+.conversation::-webkit-scrollbar-track {
+    background-color: rgb(223, 223, 223);
+}
+
+.conversation::-webkit-scrollbar-thumb {
+    background-color: #c4c4c4;
+    border-radius: 3px;
 }
 
 .message-form {
     position: fixed;
+    background-color: rgb(223, 223, 223);
     bottom: 0;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-
 }
+
 
 .message-form>input {
     border: none;
     outline: none;
-
-    /* height: 30px; */
     border-radius: 5px;
-    font-size: 12px;
+    font-size: 14px;
     margin-bottom: 5px;
     padding: 5px;
-    border: 1px solid gray;
+    border: 1px solid rgba(128, 128, 128, 0.292);
     caret-color: rgb(9, 59, 59);
     color: black;
+    width: 70%;
+    margin-left: 5px;
 }
 
-
-.header {
-    margin-bottom: 10px;
+.chat-header {
+    padding: 5px;
+    height: 8%;
+    padding-bottom: 0;
 }
 
 p,
-h2 {
-    font-size: 12px;
+h2,
+ul,
+li {
+    font-size: 14px;
     margin: 0;
     padding: 0;
     color: rgb(9, 59, 59);
+    font-weight: 600;
 }
 
-.message {
+.message-form {
     display: flex;
+    height: 15%;
+    width: 100%;
 }
 
 .message-form>button {
@@ -299,12 +289,13 @@ h2 {
     outline: none;
     background-color: rgb(9, 59, 59);
     color: white;
-    padding: 5px;
+    padding: 4px;
     border-radius: 5px;
     margin-left: 5px;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     margin-bottom: 5px;
+    margin-right: 5px;
 }
 
 .message-form>button:hover {
@@ -317,9 +308,97 @@ h2 {
     transform: scale(0.85);
 }
 
-.message-text {
+ul {
+    text-decoration: none;
+    list-style-type: none;
+}
 
-    background-color: rgb(9, 59, 59);
-    color: white;
+.self-message,
+.other-message {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 5px;
+}
 
+.self-message {
+    background-color: rgb(225, 219, 219);
+}
+
+
+.destroy {
+    display: none;
+}
+
+.menu-toggle {
+    position: fixed;
+    background-color: rgb(223, 223, 223);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    top: 30px;
+    left: 30px;
+    cursor: pointer;
+    transition: .8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1;
+}
+
+.menu-toggle:hover {
+    background-color: rgb(223, 223, 223);
+    transform: scale(0.9);
+}
+
+.menu-toggle:active {
+    background-color: rgb(223, 223, 223);
+    transform: scale(0.65);
+}
+
+.menu {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 300px;
+    opacity: 0;
+    pointer-events: none;
+
+    transition: transform .2s ease, opacity .2s ease;
+    transform-origin: center center;
+}
+
+.menu>div {
+    background-color: rgba(125, 125, 125, 0.653);
+    margin: 10px;
+    width: 100px;
+    height: 100px;
+    transition: background-color .5s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    border-radius: 2px;
+    font-size: 15px;
+    border: rgba(255, 255, 255, 0.068) 1px solid;
+    transition: transform .1s ease;
+
+}
+
+.menu>div:hover {
+    background-color: rgba(125, 125, 125, 0.29);
+    transform: scale(1.03);
+}
+
+.menu.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+    pointer-events: all;
+}
+
+.menu.close {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.8);
+    pointer-events: none;
 }

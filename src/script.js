@@ -8,12 +8,83 @@ import { gsap } from "gsap";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import Chart from "chart.js/auto";
 
+
+
+// menu logic
+
+const menu = document.getElementById('menu')
+const menuButton = document.getElementById('menu-toggle')
+const orbitMenuOption = document.getElementById('orbit')
+const pointerlockMenuOption = document.getElementById('pointerlock')
+const assistantMenuOption = document.getElementById('assistant')
+const tourMenuOption = document.getElementById('tour')
+
+
+
+menuButton.addEventListener("click", () => {
+    menu.classList.toggle("visible");
+});
+
+orbitMenuOption.addEventListener("click", () => {
+    menu.classList.toggle("close");
+    changeControls()
+});
+
+pointerlockMenuOption.addEventListener("click", () => {
+    menu.classList.toggle("close");
+    activatePointerLock()
+});
+
+
+
+
+
 // chat bot ai
 let chat_icon = document.querySelector(".chat-bot-icon");
 let chat_box = document.querySelector(".chat-bot-box");
 
+const chatLog = document.querySelector("#chat-log");
+
+// Initialize the WebSocket connection
+const socket = new WebSocket("ws://localhost:8080");
+
+// Handle incoming messages from the server
+socket.addEventListener("message", event => {
+
+    const message = JSON.parse(event.data);
+    console.log(message)
+
+    const li = document.createElement("li");
+    li.innerText = message.message
+    li.classList.add('other-message')
+    chatLog.appendChild(li);
 
 
+
+
+});
+
+// Send messages to the server when the user presses Enter
+const input = document.querySelector("#chat-input");
+input.addEventListener("keydown", event => {
+    if (event.key === "Enter" && input.value != '') {
+        const message = input.value;
+        input.value = "";
+
+        // Send the message to the server
+        socket.send(message);
+
+        // Add the message to the chat log
+
+        const li = document.createElement("li");
+        li.classList.add("sent");
+        li.textContent = message;
+        li.classList.add(
+            'self-message'
+        )
+        chatLog.appendChild(li);
+    }
+});
 
 
 // end chat bot ai
@@ -35,7 +106,7 @@ const havePointerLock = (
 
 if (havePointerLock) {
     const element = document.body;
-    const instructions = document.querySelector('#instructions');
+    const instructions = document.querySelector('#pointerlock');
 
     const pointerlockchange = () => {
         if (
@@ -122,6 +193,8 @@ const loadingManager = new THREE.LoadingManager(
             animationsReady = true;
             changeControls()
             tweenCameraToPosition(cameraTweens[3].position, 5)
+
+
         }, 500);
     },
 
@@ -367,22 +440,22 @@ const points = [
     {
         position: new THREE.Vector3(3.04, 1.32, 3.36),
         element: document.querySelector(".point-0"),
-        visible: true,
+        visible: false,
     },
     {
         position: new THREE.Vector3(20.25, 4.2, 8.08),
         element: document.querySelector(".point-1"),
-        visible: true,
+        visible: false,
     },
     {
         position: new THREE.Vector3(-7.78, 3.29, 5.75),
         element: document.querySelector(".point-2"),
-        visible: true,
+        visible: false,
     },
     {
         position: new THREE.Vector3(4.52, 8.21, 0.39),
         element: document.querySelector(".point-3"),
-        visible: true,
+        visible: false,
     },
     {
         position: new THREE.Vector3(-2.85, 9.44, 0.84),
@@ -446,172 +519,177 @@ window.addEventListener("wheel", (event) => {
     }
 });
 
+let chartReady = false
 
+if (chartReady) {
 
-// Chart 1
-const ctx = document.getElementById("myChart");
-const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-        y: {
-            beginAtZero: true,
-            ticks: {
-                color: "white",
-            },
-        },
-        x: {
-            ticks: {
-                color: "white",
-            },
-        },
-    },
-    plugins: {
-        title: {
-            display: true,
-            text: "Male/Female Chart",
-            color: "white",
-        },
-        legend: {
-            labels: {
-                color: "white",
-            },
-        },
-        tooltip: {
-            backgroundColor: "black",
-        },
-        datalabels: {
-            color: "black",
-        },
-    },
-};
-
-const femaleCount = 26000;
-const maleCount = 22000;
-
-const chart = new Chart(ctx, {
-    type: "bar",
-    data: {
-        labels: ["Male", "Female"],
-        datasets: [
-            {
-                label: "male/female",
-                data: [maleCount, femaleCount],
-                backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)"],
-                borderWidth: 1,
-            },
-        ],
-    },
-    options: options,
-});
-
-// Set chart container size using CSS
-chart.canvas.parentNode.style.width = "230px";
-chart.canvas.parentNode.style.height = "180px";
-
-// Chart 2
-const data = {
-    labels: ["Year 1", "Year 2", "Year 3", "Year 4"],
-    datasets: [
-        {
-            data: [12000, 13000, 14000, 9000],
-            backgroundColor: [
-                "rgb(255, 99, 132)",
-                "rgb(75, 192, 192)",
-                "rgb(54, 162, 235)",
-                "rgb(255, 205, 86)",
-            ],
-            hoverOffset: 4,
-        },
-    ],
-};
-
-const config = {
-    type: "doughnut",
-    data: data,
-    options: {
+    // Chart 1
+    const ctx = document.getElementById("myChart");
+    const options = {
         responsive: true,
-        plugins: {
-            title: {
-                display: true,
-                text: "Student Year Distribution",
-            },
-            legend: {
-                position: "bottom",
-                labels: {
-                    boxWidth: 15,
-                    padding: 20,
-                },
-            },
-        },
-    },
-};
-
-const ctx2 = document.getElementById("myChart2").getContext("2d");
-const chart2 = new Chart(ctx2, config);
-
-// Set chart container size using CSS
-chart2.canvas.parentNode.style.width = "200px";
-chart2.canvas.parentNode.style.height = "200px";
-
-// Chart 3
-const ctx3 = document.getElementById("myChart3");
-const sundayCount = 2000;
-const mondayCount = 3500;
-const tuesdayCount = -2800;
-const wednesdayCount = 4200;
-const thursdayCount = 3900;
-
-const chart3 = new Chart(ctx3, {
-    type: "bar",
-    data: {
-        labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
-        datasets: [
-            {
-                label: "Student Density",
-                data: [sundayCount, mondayCount, tuesdayCount, wednesdayCount, thursdayCount],
-                backgroundColor: [
-                    " rgba(255, 99, 132, 1)",
-                    "rgba(54, 162, 235, 1)",
-                    "rgba(255, 206, 86, 1) ",
-                    " rgba(75, 192, 192, 1)",
-                    "rgba(153, 102, 255, 1)",
-                ],
-                borderColor: [
-                    "rgba(255, 99, 132, 0.2)",
-                    "rgba(54, 162, 235, 0.2)",
-                    "rgba(255, 206, 86, 0.2)",
-                    "rgba(75, 192, 192, 0.2)",
-                    " rgba(153, 102, 255, 0.2)",
-                ],
-                borderWidth: 1,
-            },
-        ],
-    },
-    options: {
+        maintainAspectRatio: false,
         scales: {
             y: {
                 beginAtZero: true,
                 ticks: {
-                    stepSize: 500,
+                    color: "white",
+                },
+            },
+            x: {
+                ticks: {
+                    color: "white",
                 },
             },
         },
         plugins: {
             title: {
                 display: true,
-                text: "Student Density by Day",
+                text: "Male/Female Chart",
+                color: "white",
             },
             legend: {
-                display: false,
+                labels: {
+                    color: "white",
+                },
+            },
+            tooltip: {
+                backgroundColor: "black",
+            },
+            datalabels: {
+                color: "black",
             },
         },
-    },
-});
+    };
 
-// Set chart container size using CSS
-chart3.canvas.parentNode.style.width = "400px";
-chart3.canvas.parentNode.style.height = "400px";
+    const femaleCount = 26000;
+    const maleCount = 22000;
+
+    const chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Male", "Female"],
+            datasets: [
+                {
+                    label: "male/female",
+                    data: [maleCount, femaleCount],
+                    backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)"],
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: options,
+    });
+
+    // Set chart container size using CSS
+    chart.canvas.parentNode.style.width = "230px";
+    chart.canvas.parentNode.style.height = "180px";
+
+    // Chart 2
+    const data = {
+        labels: ["Year 1", "Year 2", "Year 3", "Year 4"],
+        datasets: [
+            {
+                data: [12000, 13000, 14000, 9000],
+                backgroundColor: [
+                    "rgb(255, 99, 132)",
+                    "rgb(75, 192, 192)",
+                    "rgb(54, 162, 235)",
+                    "rgb(255, 205, 86)",
+                ],
+                hoverOffset: 4,
+            },
+        ],
+    };
+
+    const config = {
+        type: "doughnut",
+        data: data,
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Student Year Distribution",
+                },
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        boxWidth: 15,
+                        padding: 20,
+                    },
+                },
+            },
+        },
+    };
+
+    const ctx2 = document.getElementById("myChart2").getContext("2d");
+    const chart2 = new Chart(ctx2, config);
+
+    // Set chart container size using CSS
+    chart2.canvas.parentNode.style.width = "200px";
+    chart2.canvas.parentNode.style.height = "200px";
+
+    // Chart 3
+    const ctx3 = document.getElementById("myChart3");
+    const sundayCount = 2000;
+    const mondayCount = 3500;
+    const tuesdayCount = -2800;
+    const wednesdayCount = 4200;
+    const thursdayCount = 3900;
+
+    const chart3 = new Chart(ctx3, {
+        type: "bar",
+        data: {
+            labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+            datasets: [
+                {
+                    label: "Student Density",
+                    data: [sundayCount, mondayCount, tuesdayCount, wednesdayCount, thursdayCount],
+                    backgroundColor: [
+                        " rgba(255, 99, 132, 1)",
+                        "rgba(54, 162, 235, 1)",
+                        "rgba(255, 206, 86, 1) ",
+                        " rgba(75, 192, 192, 1)",
+                        "rgba(153, 102, 255, 1)",
+                    ],
+                    borderColor: [
+                        "rgba(255, 99, 132, 0.2)",
+                        "rgba(54, 162, 235, 0.2)",
+                        "rgba(255, 206, 86, 0.2)",
+                        "rgba(75, 192, 192, 0.2)",
+                        " rgba(153, 102, 255, 0.2)",
+                    ],
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 500,
+                    },
+                },
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Student Density by Day",
+                },
+                legend: {
+                    display: false,
+                },
+            },
+        },
+    });
+
+    // Set chart container size using CSS
+    chart3.canvas.parentNode.style.width = "400px";
+    chart3.canvas.parentNode.style.height = "400px";
+}
+
+
 
 
 // camera gsap animation
@@ -705,19 +783,23 @@ function changeControls() {
     currentControls = new OrbitControls(camera, renderer.domElement);
     orbit = true;
     currentControls.enableDamping = true;
+    currentControls.minDistance = 20;
+    currentControls.maxDistance = 90;
+
+}
+
+function activatePointerLock() {
+    // dispose of the current control instance
+    if (currentControls) {
+        currentControls.dispose();
+    }
+    // create the PointerLockControls instance
+    orbit = false;
+    currentControls = new PointerLockControls(camera, document.body);
 }
 
 const pointerLockButton = {
-    trigger: function () {
-        // dispose of the current control instance
-        if (currentControls) {
-            currentControls.dispose();
-        }
-        // create the PointerLockControls instance
-        orbit = false;
-        currentControls = new PointerLockControls(camera, document.body);
-
-    },
+    trigger: activatePointerLock,
 };
 gui.add(orbitButton, 'trigger').name('Orbit Controls');
 gui.add(pointerLockButton, 'trigger').name('Pointer Lock Controls');
@@ -734,7 +816,6 @@ let oldElapsedTime = 0;
 
 console.log(gui)
 gui.close();
-
 
 
 

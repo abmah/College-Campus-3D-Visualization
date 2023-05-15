@@ -13,25 +13,32 @@
         <canvas class="webgl"></canvas>
         <div class="loading-bar"></div>
 
+        <h1 class="college-intro-name">AL HOUSON UNIVERSITY</h1>
+
+        <div id="menu-toggle" class="menu-toggle"></div>
+        <div id="menu" class="menu">
+            <div id="orbit">Orbit</div>
+            <div id="pointerlock">PointerLock</div>
+            <div id="assistant">Assistant</div>
+            <div id="tour">Tour</div>
+        </div>
+
 
         <div class="instructions" id="instructions">play</div>
+
         <div class="chat-bot-icon"> </div>
+
         <div class="chat-bot-box">
-            <div class="header">
+            <div class="chat-header">
                 <h2>Chat Bot</h2>
             </div>
-            <div class="conversation-container">
-                <div class="conversation">
-                    <div class="message">
-                        <p class="message-user">college-bot: </p>
-                        <p class="message-text">Hello! How can I help you today?</p>
-                    </div>
 
-                </div>
-                <div class="message-form">
-                    <input type="text" placeholder="Type your message here...">
-                    <button>Send</button>
-                </div>
+            <div class="conversation">
+                <ul id="chat-log"></ul>
+            </div>
+            <div class="message-form">
+                <input id="chat-input" type="text" placeholder="Type your message">
+                <button>Send</button>
             </div>
         </div>
 
