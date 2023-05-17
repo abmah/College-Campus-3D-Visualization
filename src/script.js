@@ -26,7 +26,7 @@ menuButton.addEventListener("click", () => {
 });
 
 orbitMenuOption.addEventListener("click", () => {
-    menu.classList.toggle("close");
+    menu.classList.toggle("visible");
     changeControls()
 });
 
@@ -55,11 +55,34 @@ socket.addEventListener("message", event => {
     console.log(message)
 
     const li = document.createElement("li");
-    li.innerText = message.message
+    li.innerText = message.answer
     li.classList.add('other-message')
     chatLog.appendChild(li);
 
 
+
+    points.forEach((point) => {
+        point.visible = false;
+        point.element.classList.remove("visible");
+    })
+
+    setTimeout(() => {
+        if (message.position) {
+
+            const tweenPos = new THREE.Vector3(message.position[0], message.position[1], message.position[2])
+            tweenCameraToPosition(tweenPos, 2)
+
+            // fix above 
+
+            setTimeout(() => {
+                sceneReady = true;
+                points[6].visible = true
+            }, 1500);
+
+        }
+
+
+    }, 500);
 
 
 });
@@ -288,7 +311,7 @@ function createMaterial(textureName) {
 // Model
 let cameraMixer = null;
 
-gltfLoader.load("baking5.glb", (gltf) => {
+gltfLoader.load("ReadyVersion.glb", (gltf) => {
 
 
     const objectMaterials = new Map([['Cube504', createMaterial("baked.jpg")],
@@ -306,14 +329,14 @@ gltfLoader.load("baking5.glb", (gltf) => {
 
 
 
-    gltf.scene.traverse((child) => {
-        const objectMaterial = objectMaterials.get(child.name);
-        if (objectMaterial) {
-            child.traverse((child) => {
-                child.material = objectMaterial;
-            });
-        }
-    });
+    // gltf.scene.traverse((child) => {
+    //     const objectMaterial = objectMaterials.get(child.name);
+    //     if (objectMaterial) {
+    //         child.traverse((child) => {
+    //             child.material = objectMaterial;
+    //         });
+    //     }
+    // });
 
 
     gltf.scene.scale.set(10, 10, 10);
@@ -342,9 +365,6 @@ directionalLight.shadow.camera.far = 50;
 
 
 scene.add(directionalLight);
-
-
-
 
 
 /**
@@ -380,7 +400,7 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-debugObject.clearColor = "#000000";
+debugObject.clearColor = "#0a0a0a";
 gui.addColor(debugObject, 'clearColor').onChange(() => {
     renderer.setClearColor(debugObject.clearColor)
 })
@@ -440,33 +460,38 @@ const points = [
     {
         position: new THREE.Vector3(3.04, 1.32, 3.36),
         element: document.querySelector(".point-0"),
-        visible: false,
+        visible: true,
     },
     {
         position: new THREE.Vector3(20.25, 4.2, 8.08),
         element: document.querySelector(".point-1"),
-        visible: false,
+        visible: true,
     },
     {
         position: new THREE.Vector3(-7.78, 3.29, 5.75),
         element: document.querySelector(".point-2"),
-        visible: false,
+        visible: true,
     },
     {
         position: new THREE.Vector3(4.52, 8.21, 0.39),
         element: document.querySelector(".point-3"),
-        visible: false,
+        visible: true,
     },
     {
         position: new THREE.Vector3(-2.85, 9.44, 0.84),
         element: document.querySelector(".point-4"),
-        visible: false,
+        visible: true,
     },
     {
         position: new THREE.Vector3(3.29, 21.73, 0.84),
         element: document.querySelector(".point-5"),
-        visible: false,
+        visible: true,
     },
+    {
+        position: new THREE.Vector3(-8.52, 1.76, 2.67),
+        element: document.querySelector(".location-point"),
+        visible: true,
+    }
 ];
 
 // gui visiblity
@@ -519,175 +544,203 @@ window.addEventListener("wheel", (event) => {
     }
 });
 
-let chartReady = false
+let chartReady = true
 
-if (chartReady) {
 
-    // Chart 1
-    const ctx = document.getElementById("myChart");
-    const options = {
+// Chart 1
+const ctx = document.getElementById("myChart");
+const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: {
+                color: "white",
+            },
+        },
+        x: {
+            ticks: {
+                color: "white",
+            },
+        },
+    },
+    plugins: {
+        title: {
+            display: true,
+            text: "Male/Female Chart",
+            color: "white",
+        },
+        legend: {
+            labels: {
+                color: "white",
+            },
+        },
+        tooltip: {
+            backgroundColor: "black",
+        },
+        datalabels: {
+            color: "black",
+        },
+    },
+};
+
+const femaleCount = 26000;
+const maleCount = 22000;
+
+const chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+        labels: ["Male", "Female"],
+        datasets: [
+            {
+                label: "male/female",
+                data: [maleCount, femaleCount],
+                backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)"],
+                borderWidth: 1,
+            },
+        ],
+    },
+    options: options,
+});
+
+// Set chart container size using CSS
+chart.canvas.parentNode.style.width = "230px";
+chart.canvas.parentNode.style.height = "180px";
+
+// Chart 2
+const data = {
+    labels: ["Year 1", "Year 2", "Year 3", "Year 4"],
+    datasets: [
+        {
+            data: [12000, 13000, 14000, 9000],
+            backgroundColor: [
+                "rgb(255, 99, 132)",
+                "rgb(75, 192, 192)",
+                "rgb(54, 162, 235)",
+                "rgb(255, 205, 86)",
+            ],
+            hoverOffset: 4,
+        },
+    ],
+};
+
+const config = {
+    type: "doughnut",
+    data: data,
+    options: {
         responsive: true,
-        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: "Student Year Distribution",
+            },
+            legend: {
+                position: "bottom",
+                labels: {
+                    boxWidth: 15,
+                    padding: 20,
+                },
+            },
+        },
+    },
+};
+
+const ctx2 = document.getElementById("myChart2").getContext("2d");
+const chart2 = new Chart(ctx2, config);
+
+// Set chart container size using CSS
+chart2.canvas.parentNode.style.width = "200px";
+chart2.canvas.parentNode.style.height = "200px";
+
+// Chart 3
+const ctx3 = document.getElementById("myChart3");
+const sundayCount = 2000;
+const mondayCount = 3500;
+const tuesdayCount = -2800;
+const wednesdayCount = 4200;
+const thursdayCount = 3900;
+
+const chart3 = new Chart(ctx3, {
+    type: "bar",
+    data: {
+        labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+        datasets: [
+            {
+                label: "Student Density",
+                data: [sundayCount, mondayCount, tuesdayCount, wednesdayCount, thursdayCount],
+                backgroundColor: [
+                    " rgba(255, 99, 132, 1)",
+                    "rgba(54, 162, 235, 1)",
+                    "rgba(255, 206, 86, 1) ",
+                    " rgba(75, 192, 192, 1)",
+                    "rgba(153, 102, 255, 1)",
+                ],
+                borderColor: [
+                    "rgba(255, 99, 132, 0.2)",
+                    "rgba(54, 162, 235, 0.2)",
+                    "rgba(255, 206, 86, 0.2)",
+                    "rgba(75, 192, 192, 0.2)",
+                    " rgba(153, 102, 255, 0.2)",
+                ],
+                borderWidth: 1,
+            },
+        ],
+    },
+    options: {
         scales: {
             y: {
                 beginAtZero: true,
                 ticks: {
-                    color: "white",
-                },
-            },
-            x: {
-                ticks: {
-                    color: "white",
+                    stepSize: 500,
                 },
             },
         },
         plugins: {
             title: {
                 display: true,
-                text: "Male/Female Chart",
-                color: "white",
+                text: "Student Density by Day",
             },
             legend: {
-                labels: {
-                    color: "white",
-                },
-            },
-            tooltip: {
-                backgroundColor: "black",
-            },
-            datalabels: {
-                color: "black",
+                display: false,
             },
         },
-    };
+    },
+});
 
-    const femaleCount = 26000;
-    const maleCount = 22000;
+// Set chart container size using CSS
+chart3.canvas.parentNode.style.width = "400px";
+chart3.canvas.parentNode.style.height = "400px";
 
-    const chart = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: ["Male", "Female"],
-            datasets: [
-                {
-                    label: "male/female",
-                    data: [maleCount, femaleCount],
-                    backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)"],
-                    borderWidth: 1,
-                },
-            ],
-        },
-        options: options,
-    });
 
-    // Set chart container size using CSS
-    chart.canvas.parentNode.style.width = "230px";
-    chart.canvas.parentNode.style.height = "180px";
+// Area wire frame
+const areaGeometry = new THREE.BoxGeometry(7, 5, 5);
+const areaWireFrame = new THREE.LineSegments(
+    new THREE.EdgesGeometry(areaGeometry),
+    new THREE.LineBasicMaterial({ color: 0xff0000 })
+);
 
-    // Chart 2
-    const data = {
-        labels: ["Year 1", "Year 2", "Year 3", "Year 4"],
-        datasets: [
-            {
-                data: [12000, 13000, 14000, 9000],
-                backgroundColor: [
-                    "rgb(255, 99, 132)",
-                    "rgb(75, 192, 192)",
-                    "rgb(54, 162, 235)",
-                    "rgb(255, 205, 86)",
-                ],
-                hoverOffset: 4,
-            },
-        ],
-    };
+areaWireFrame.position.set(-6.5, 2.4, 2.5);
+areaWireFrame.rotation.x = -Math.PI / 2;
 
-    const config = {
-        type: "doughnut",
-        data: data,
-        options: {
-            responsive: true,
-            plugins: {
-                title: {
-                    display: true,
-                    text: "Student Year Distribution",
-                },
-                legend: {
-                    position: "bottom",
-                    labels: {
-                        boxWidth: 15,
-                        padding: 20,
-                    },
-                },
-            },
-        },
-    };
+// scene.add(areaWireFrame);
 
-    const ctx2 = document.getElementById("myChart2").getContext("2d");
-    const chart2 = new Chart(ctx2, config);
+// Area wire frame 2
 
-    // Set chart container size using CSS
-    chart2.canvas.parentNode.style.width = "200px";
-    chart2.canvas.parentNode.style.height = "200px";
+const areaGeometry2 = new THREE.BoxGeometry(1, 1, 5);
+const areaWireFrame2 = new THREE.LineSegments(
+    new THREE.EdgesGeometry(areaGeometry2),
+    new THREE.LineBasicMaterial({
+        color: 0xff0000,
 
-    // Chart 3
-    const ctx3 = document.getElementById("myChart3");
-    const sundayCount = 2000;
-    const mondayCount = 3500;
-    const tuesdayCount = -2800;
-    const wednesdayCount = 4200;
-    const thursdayCount = 3900;
+    })
+);
 
-    const chart3 = new Chart(ctx3, {
-        type: "bar",
-        data: {
-            labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
-            datasets: [
-                {
-                    label: "Student Density",
-                    data: [sundayCount, mondayCount, tuesdayCount, wednesdayCount, thursdayCount],
-                    backgroundColor: [
-                        " rgba(255, 99, 132, 1)",
-                        "rgba(54, 162, 235, 1)",
-                        "rgba(255, 206, 86, 1) ",
-                        " rgba(75, 192, 192, 1)",
-                        "rgba(153, 102, 255, 1)",
-                    ],
-                    borderColor: [
-                        "rgba(255, 99, 132, 0.2)",
-                        "rgba(54, 162, 235, 0.2)",
-                        "rgba(255, 206, 86, 0.2)",
-                        "rgba(75, 192, 192, 0.2)",
-                        " rgba(153, 102, 255, 0.2)",
-                    ],
-                    borderWidth: 1,
-                },
-            ],
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 500,
-                    },
-                },
-            },
-            plugins: {
-                title: {
-                    display: true,
-                    text: "Student Density by Day",
-                },
-                legend: {
-                    display: false,
-                },
-            },
-        },
-    });
+areaWireFrame2.position.set(6.5, 2.4, -2.5);
+areaWireFrame2.rotation.x = -Math.PI / 2;
 
-    // Set chart container size using CSS
-    chart3.canvas.parentNode.style.width = "400px";
-    chart3.canvas.parentNode.style.height = "400px";
-}
+// scene.add(areaWireFrame2);
+
 
 
 
@@ -713,7 +766,29 @@ const cameraTweens = [
         name: "intro camera tween",
         position: new THREE.Vector3(-1.353140659353707, 6.937502312233253, -30.519084253413453),
         duration: 2
+    },
+    {
+        name: "Library Tween",
+        position: new THREE.Vector3(-18.61092832326364, 4.243537490073049, 6.1420792672884055),
+        duration: 1
+    },
+
+    {
+        name: "Algorithim Tween",
+        position: new THREE.Vector3(6.6717914920234165, 3.8548031304868884, 2.0047405176169804),
+        duration: 1
+    },
+    {
+        name: "Dr Hasan Tween",
+        position: new THREE.Vector3(-16.97268408727934, 20.522256250825055, -20.432169910383895),
+        duration: 1
+    },
+    {
+        name: "cafeteria tween",
+        position: new THREE.Vector3(19.583985610418956, 3.514349917370587, 5.57151503401632),
+        duration: 1
     }
+
 ];
 
 const easingTypes = [
@@ -754,9 +829,9 @@ cameraTweens.forEach(tween => {
 
 const positionButton = {
     trigger: function () {
-        // Log the camera position and rotation to the console
-        console.log(camera.position);
-        console.log(camera.rotation);
+        console.log(camera.position.x, camera.position.y, camera.position.z)
+        console.log(camera.rotation.x, camera.rotation.y, camera.rotation.z)
+
     },
 };
 gui.add(positionButton, "trigger").name("log pos");
@@ -814,9 +889,7 @@ camera.position.set(.87, 51, -97);
 const clock = new THREE.Clock();
 let oldElapsedTime = 0;
 
-console.log(gui)
 gui.close();
-
 
 
 const tick = () => {
