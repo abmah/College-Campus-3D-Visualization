@@ -31,7 +31,7 @@ orbitMenuOption.addEventListener("click", () => {
 });
 
 pointerlockMenuOption.addEventListener("click", () => {
-    menu.classList.toggle("close");
+    menu.classList.toggle("visible");
     activatePointerLock()
 });
 
@@ -311,32 +311,33 @@ function createMaterial(textureName) {
 // Model
 let cameraMixer = null;
 
-gltfLoader.load("ReadyVersion.glb", (gltf) => {
+gltfLoader.load("ReadyVersion2.glb", (gltf) => {
 
 
     const objectMaterials = new Map([['Cube504', createMaterial("baked.jpg")],
-    ['ALGO', createMaterial("ALGO.jpg")],
-    ['Plane229', createMaterial("green.jpg")],
-    ['Plane056', createMaterial("window.jpg")],
-    ['Cylinder012', createMaterial("trees.jpg")],
-    ['Cube285', createMaterial("randome.jpg")],
-    ['Cube014', createMaterial("A.jpg")],
-    ['Cube028', createMaterial("dirt.jpg")],
-    ['Cube145', createMaterial("cs.jpg")],
-    ['Cube005', createMaterial("car.jpg")]
+    // ['ALGO', createMaterial("ALGO.jpg")],
+    // ['Plane229', createMaterial("green.jpg")],
+    // ['Plane056', createMaterial("window.jpg")],
+    // ['Cylinder012', createMaterial("trees.jpg")],
+    // ['Cube285', createMaterial("randome.jpg")],
+    // ['Cube014', createMaterial("A.jpg")],
+    // ['Cube028', createMaterial("dirt.jpg")],
+    // ['Cube145', createMaterial("cs.jpg")],
+    // ['Cube005', createMaterial("car.jpg")]
+    ['Plane001', createMaterial("theatre.jpg")]
     ]);
 
 
 
 
-    // gltf.scene.traverse((child) => {
-    //     const objectMaterial = objectMaterials.get(child.name);
-    //     if (objectMaterial) {
-    //         child.traverse((child) => {
-    //             child.material = objectMaterial;
-    //         });
-    //     }
-    // });
+    gltf.scene.traverse((child) => {
+        const objectMaterial = objectMaterials.get(child.name);
+        if (objectMaterial) {
+            child.traverse((child) => {
+                child.material = objectMaterial;
+            });
+        }
+    });
 
 
     gltf.scene.scale.set(10, 10, 10);
