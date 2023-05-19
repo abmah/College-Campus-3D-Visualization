@@ -72,11 +72,10 @@ socket.addEventListener("message", event => {
             const tweenPos = new THREE.Vector3(message.position[0], message.position[1], message.position[2])
             tweenCameraToPosition(tweenPos, 2)
 
-            // fix above 
-
             setTimeout(() => {
                 sceneReady = true;
                 points[6].visible = true
+                points[6].position.set(message.position[0], message.position[1], message.position[2])
             }, 1500);
 
         }
@@ -261,17 +260,38 @@ gltfLoader.setDRACOLoader(dracoLoader);
 const camera = new THREE.PerspectiveCamera(
     23,
     window.innerWidth / window.innerHeight,
-    .5,
+    0.5,
     500
 );
-const fovControl = gui.add(camera, 'fov', 1, 180).name('FOV');
 
+
+
+// FOV control
+const fovControl = gui.add(camera, 'fov', 1, 180).name('FOV');
 fovControl.onChange(() => {
     camera.updateProjectionMatrix();
 });
-gui.add(camera.position, 'y', -10, 10, 0.01).name('Camera X');
+
+// Near and far controls
+const cameraParams = {
+    near: 0.5,
+    far: 500
+};
+
+gui.add(cameraParams, 'near', 0.1, 100).onChange(updateCamera);
+gui.add(cameraParams, 'far', 100, 1000).onChange(updateCamera);
+
+function updateCamera() {
+    camera.near = cameraParams.near;
+    camera.far = cameraParams.far;
+    camera.updateProjectionMatrix();
+}
+
+// Camera position control
+gui.add(camera.position, 'y', -10, 10, 0.01).name('Camera Y');
 
 scene.add(camera);
+
 
 // intro overlay
 const overlayGeometry = new THREE.PlaneGeometry(2, 2, 1, 1);
@@ -311,20 +331,22 @@ function createMaterial(textureName) {
 // Model
 let cameraMixer = null;
 
-gltfLoader.load("ReadyVersion2.glb", (gltf) => {
+gltfLoader.load("baking5.glb", (gltf) => {
 
 
     const objectMaterials = new Map([['Cube504', createMaterial("baked.jpg")],
-    // ['ALGO', createMaterial("ALGO.jpg")],
-    // ['Plane229', createMaterial("green.jpg")],
-    // ['Plane056', createMaterial("window.jpg")],
-    // ['Cylinder012', createMaterial("trees.jpg")],
-    // ['Cube285', createMaterial("randome.jpg")],
-    // ['Cube014', createMaterial("A.jpg")],
-    // ['Cube028', createMaterial("dirt.jpg")],
-    // ['Cube145', createMaterial("cs.jpg")],
-    // ['Cube005', createMaterial("car.jpg")]
-    ['Plane001', createMaterial("theatre.jpg")]
+    ['ALGO', createMaterial("ALGO.jpg")],
+    ['Plane229', createMaterial("green.jpg")],
+    ['Plane056', createMaterial("window.jpg")],
+    ['Cylinder012', createMaterial("trees.jpg")],
+    ['Cube285', createMaterial("randome.jpg")],
+    ['Cube014', createMaterial("A.jpg")],
+    ['Cube028', createMaterial("dirt.jpg")],
+    ['Cube145', createMaterial("cs.jpg")],
+    ['Cube005', createMaterial("car.jpg")],
+    ['Plane001', createMaterial("theatre.jpg")],
+    ['Plane', createMaterial('ABuilding.jpg')]
+
     ]);
 
 
@@ -658,7 +680,7 @@ chart2.canvas.parentNode.style.height = "200px";
 const ctx3 = document.getElementById("myChart3");
 const sundayCount = 2000;
 const mondayCount = 3500;
-const tuesdayCount = -2800;
+const tuesdayCount = 2800;
 const wednesdayCount = 4200;
 const thursdayCount = 3900;
 
@@ -788,6 +810,11 @@ const cameraTweens = [
         name: "cafeteria tween",
         position: new THREE.Vector3(19.583985610418956, 3.514349917370587, 5.57151503401632),
         duration: 1
+    },
+    {
+        name: "theater tween",
+        position: new THREE.Vector3(-13.847515541172456, 0.5076778402488984, 4.925996609927153),
+        duration: 1
     }
 
 ];
@@ -857,10 +884,13 @@ function changeControls() {
     }
     // create the OrbitControls instance
     currentControls = new OrbitControls(camera, renderer.domElement);
+
     orbit = true;
     currentControls.enableDamping = true;
-    currentControls.minDistance = 20;
+    // currentControls.minDistance = 20;
     currentControls.maxDistance = 90;
+    camera.near = 1
+    camera.updateProjectionMatrix();
 
 }
 
@@ -872,6 +902,8 @@ function activatePointerLock() {
     // create the PointerLockControls instance
     orbit = false;
     currentControls = new PointerLockControls(camera, document.body);
+    camera.near = 0.1
+    camera.updateProjectionMatrix();
 }
 
 const pointerLockButton = {
