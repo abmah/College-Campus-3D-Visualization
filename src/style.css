@@ -313,6 +313,11 @@ ul {
     list-style-type: none;
 }
 
+.other-message {
+
+    white-space: wrap;
+}
+
 .self-message,
 .other-message {
     padding-top: 0.5rem;

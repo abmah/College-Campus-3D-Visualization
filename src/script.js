@@ -43,6 +43,7 @@ pointerlockMenuOption.addEventListener("click", () => {
 let chat_icon = document.querySelector(".chat-bot-icon");
 let chat_box = document.querySelector(".chat-bot-box");
 
+
 const chatLog = document.querySelector("#chat-log");
 
 // Initialize the WebSocket connection
@@ -51,40 +52,139 @@ const socket = new WebSocket("ws://localhost:8080");
 // Handle incoming messages from the server
 socket.addEventListener("message", event => {
 
+    chatLog.scrollTop = chatLog.scrollHeight - chatLog.clientHeight;
+    chatLog.lastElementChild.scrollIntoView({ behavior: "smooth" });
+
     const message = JSON.parse(event.data);
-    console.log(message)
+    console.log(message);
 
     const li = document.createElement("li");
-    li.innerText = message.answer
-    li.classList.add('other-message')
+    li.classList.add('other-message');
     chatLog.appendChild(li);
 
+    // Set up typewriter effect
+    const text = message.answer;
+    let index = 0;
+    const speed = 10; // Adjust typing speed here
 
+    function typeWriter() {
+        if (index < text.length) {
+            li.innerHTML += text.charAt(index);
+            index++;
+            setTimeout(typeWriter, speed);
+        }
+        chatLog.scrollTop = chatLog.scrollHeight - chatLog.clientHeight;
+        chatLog.lastElementChild.scrollIntoView({ behavior: "smooth" });
+
+    }
+
+    typeWriter();
+
+    chatLog.scrollTop = chatLog.scrollHeight - chatLog.clientHeight;
+    chatLog.lastElementChild.scrollIntoView({ behavior: "smooth" });
 
     points.forEach((point) => {
         point.visible = false;
         point.element.classList.remove("visible");
     })
 
-    setTimeout(() => {
-        if (message.position) {
 
-            const tweenPos = new THREE.Vector3(message.position[0], message.position[1], message.position[2])
-            tweenCameraToPosition(tweenPos, 2)
+    if (message.position && message.intent !== 'hasan.area') {
+
+        const tweenPos = new THREE.Vector3(message.position[0], message.position[1], message.position[2])
+        tweenCameraToPosition(tweenPos, 2)
+
+        setTimeout(() => {
+            sceneReady = true;
+            // points[6].visible = true
+            // points[6].position.set(message.position[0], message.position[1], message.position[2])
+        }, 1500);
+
+    }
+
+
+
+
+    if (message.schedule) {
+        const schedule = message.schedule;
+
+        for (let i = 0; i < schedule.length; i++) {
+            const item = schedule[i];
+            const position = new THREE.Vector3(item.position[0], item.position[1], item.position[2]);
+            const duration = 1; // 2 seconds duration
+
+            const cameraOffset = new THREE.Vector3(0, 1, 3); // Adjust the camera offset as per your requirement
 
             setTimeout(() => {
-                sceneReady = true;
-                points[6].visible = true
-                points[6].position.set(message.position[0], message.position[1], message.position[2])
-            }, 1500);
+                var element = document.createElement('div');
+                element.classList.add('point'); // Add class 'point' to the outer element
 
+                var labelElement = document.createElement('div');
+                labelElement.classList.add('label');
+                labelElement.classList.add('label-text');
+                labelElement.textContent = item.class; // Replace with the desired label text
+                element.appendChild(labelElement); // Append the label element to the outer element
+
+                var textElement = document.createElement('div');
+                textElement.classList.add('text');
+                textElement.innerHTML = `${item.time}<br>${item.location}<br>${item.instructor}`; // Replace with the desired text structure
+                element.appendChild(textElement); // Append the text element to the outer element
+
+                var container = document.querySelector('.container'); // Select the container element using class name
+                container.appendChild(element); // Append the element to the container
+
+                // Append the element to the points array
+                points.push({
+                    position: position, // Replace with the desired position
+                    element: element,
+                    visible: true, // Replace with the desired visibility
+                });
+
+                // Calculate the position with the camera offset
+                const tweenPosition = position.clone().add(cameraOffset);
+
+                // Call the tweening function with the adjusted position and duration
+                // tweenCameraToPosition(tweenPosition, duration);
+            }, (i + 1) * 1000); // Delay each iteration by (i + 1) seconds
         }
+    }
+
+    if (message.intent === 'hasan.area') {
+        const areaGeometry = new THREE.BoxGeometry(5, 5, 5);
+        const areaWireFrame = new THREE.LineSegments(
+            new THREE.EdgesGeometry(areaGeometry),
+            new THREE.LineBasicMaterial({ color: 0xff0000 })
+        );
+
+        areaWireFrame.position.set(message.position[0], message.position[1], message.position[2]);
+        areaWireFrame.rotation.x = -Math.PI / 2;
+
+        scene.add(areaWireFrame);
+    }
 
 
-    }, 500);
+    if (message.intent === 'chart.FMR') {
+        makeFMChart()
+        points[3].visible = true
+    }
+
+    if (message.intent === 'chart.SY') {
+        makeSYChart()
+        points[4].visible = true
+    }
+
+    if (message.intent === 'chart.SD') {
+
+        makeSDChart()
+        points[5].visible = true
+    }
+
 
 
 });
+
+
+
 
 // Send messages to the server when the user presses Enter
 const input = document.querySelector("#chat-input");
@@ -117,7 +217,7 @@ chat_icon.addEventListener("click", () => {
 
 
 // init
-let sceneReady = false;
+let sceneReady = true;
 let animationsReady = false;
 
 const havePointerLock = (
@@ -331,21 +431,21 @@ function createMaterial(textureName) {
 // Model
 let cameraMixer = null;
 
-gltfLoader.load("baking5.glb", (gltf) => {
+gltfLoader.load("baked2.glb", (gltf) => {
 
 
-    const objectMaterials = new Map([['Cube504', createMaterial("baked.jpg")],
-    ['ALGO', createMaterial("ALGO.jpg")],
-    ['Plane229', createMaterial("green.jpg")],
-    ['Plane056', createMaterial("window.jpg")],
-    ['Cylinder012', createMaterial("trees.jpg")],
-    ['Cube285', createMaterial("randome.jpg")],
-    ['Cube014', createMaterial("A.jpg")],
-    ['Cube028', createMaterial("dirt.jpg")],
-    ['Cube145', createMaterial("cs.jpg")],
-    ['Cube005', createMaterial("car.jpg")],
-    ['Plane001', createMaterial("theatre.jpg")],
-    ['Plane', createMaterial('ABuilding.jpg')]
+    const objectMaterials = new Map([
+        ['Cube003', createMaterial("Ground_desert_updated.jpg")],
+        ['Cylinder012', createMaterial("Treees_updated.jpg")],
+        ['Cube028', createMaterial('Ground_updated.jpg')],
+        ['Cube002', createMaterial('Labotories.jpg')],
+        ['Cube', createMaterial('Utilities.jpg')],
+        ['Plane005', createMaterial('MainBuilding.jpg')],
+        ['Plane056', createMaterial('Windows.jpg')],
+        ['Plane004', createMaterial('Algorithim_building.jpg')],
+        ['Cube005', createMaterial('BusCar.jpg')],
+        ['Plane003', createMaterial('Theatre1.jpg')],
+        ['Plane006', createMaterial('Chairs3.jpg')],
 
     ]);
 
@@ -364,7 +464,7 @@ gltfLoader.load("baking5.glb", (gltf) => {
 
     gltf.scene.scale.set(10, 10, 10);
     scene.add(gltf.scene);
-    console.log(gltf.animations);
+    // console.log(gltf.animations);
 
 
 });
@@ -483,38 +583,39 @@ const points = [
     {
         position: new THREE.Vector3(3.04, 1.32, 3.36),
         element: document.querySelector(".point-0"),
-        visible: true,
+        visible: false,
     },
     {
         position: new THREE.Vector3(20.25, 4.2, 8.08),
         element: document.querySelector(".point-1"),
-        visible: true,
+        visible: false,
     },
     {
         position: new THREE.Vector3(-7.78, 3.29, 5.75),
         element: document.querySelector(".point-2"),
-        visible: true,
+        visible: false,
     },
     {
         position: new THREE.Vector3(4.52, 8.21, 0.39),
         element: document.querySelector(".point-3"),
-        visible: true,
+        visible: false,
     },
     {
         position: new THREE.Vector3(-2.85, 9.44, 0.84),
         element: document.querySelector(".point-4"),
-        visible: true,
+        visible: false,
     },
     {
-        position: new THREE.Vector3(3.29, 21.73, 0.84),
+        position: new THREE.Vector3(3.29, 9.29, 0.84),
         element: document.querySelector(".point-5"),
-        visible: true,
+        visible: false,
     },
     {
         position: new THREE.Vector3(-8.52, 1.76, 2.67),
         element: document.querySelector(".location-point"),
-        visible: true,
-    }
+        visible: false,
+    },
+
 ];
 
 // gui visiblity
@@ -570,183 +671,184 @@ window.addEventListener("wheel", (event) => {
 let chartReady = true
 
 
-// Chart 1
-const ctx = document.getElementById("myChart");
-const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-        y: {
-            beginAtZero: true,
-            ticks: {
-                color: "white",
-            },
-        },
-        x: {
-            ticks: {
-                color: "white",
-            },
-        },
-    },
-    plugins: {
-        title: {
-            display: true,
-            text: "Male/Female Chart",
-            color: "white",
-        },
-        legend: {
-            labels: {
-                color: "white",
-            },
-        },
-        tooltip: {
-            backgroundColor: "black",
-        },
-        datalabels: {
-            color: "black",
-        },
-    },
-};
-
-const femaleCount = 26000;
-const maleCount = 22000;
-
-const chart = new Chart(ctx, {
-    type: "bar",
-    data: {
-        labels: ["Male", "Female"],
-        datasets: [
-            {
-                label: "male/female",
-                data: [maleCount, femaleCount],
-                backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)"],
-                borderWidth: 1,
-            },
-        ],
-    },
-    options: options,
-});
-
-// Set chart container size using CSS
-chart.canvas.parentNode.style.width = "230px";
-chart.canvas.parentNode.style.height = "180px";
-
-// Chart 2
-const data = {
-    labels: ["Year 1", "Year 2", "Year 3", "Year 4"],
-    datasets: [
-        {
-            data: [12000, 13000, 14000, 9000],
-            backgroundColor: [
-                "rgb(255, 99, 132)",
-                "rgb(75, 192, 192)",
-                "rgb(54, 162, 235)",
-                "rgb(255, 205, 86)",
-            ],
-            hoverOffset: 4,
-        },
-    ],
-};
-
-const config = {
-    type: "doughnut",
-    data: data,
-    options: {
+function makeFMChart() {
+    const ctx = document.getElementById("myChart");
+    const options = {
         responsive: true,
-        plugins: {
-            title: {
-                display: true,
-                text: "Student Year Distribution",
-            },
-            legend: {
-                position: "bottom",
-                labels: {
-                    boxWidth: 15,
-                    padding: 20,
-                },
-            },
-        },
-    },
-};
-
-const ctx2 = document.getElementById("myChart2").getContext("2d");
-const chart2 = new Chart(ctx2, config);
-
-// Set chart container size using CSS
-chart2.canvas.parentNode.style.width = "200px";
-chart2.canvas.parentNode.style.height = "200px";
-
-// Chart 3
-const ctx3 = document.getElementById("myChart3");
-const sundayCount = 2000;
-const mondayCount = 3500;
-const tuesdayCount = 2800;
-const wednesdayCount = 4200;
-const thursdayCount = 3900;
-
-const chart3 = new Chart(ctx3, {
-    type: "bar",
-    data: {
-        labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
-        datasets: [
-            {
-                label: "Student Density",
-                data: [sundayCount, mondayCount, tuesdayCount, wednesdayCount, thursdayCount],
-                backgroundColor: [
-                    " rgba(255, 99, 132, 1)",
-                    "rgba(54, 162, 235, 1)",
-                    "rgba(255, 206, 86, 1) ",
-                    " rgba(75, 192, 192, 1)",
-                    "rgba(153, 102, 255, 1)",
-                ],
-                borderColor: [
-                    "rgba(255, 99, 132, 0.2)",
-                    "rgba(54, 162, 235, 0.2)",
-                    "rgba(255, 206, 86, 0.2)",
-                    "rgba(75, 192, 192, 0.2)",
-                    " rgba(153, 102, 255, 0.2)",
-                ],
-                borderWidth: 1,
-            },
-        ],
-    },
-    options: {
+        maintainAspectRatio: false,
         scales: {
             y: {
                 beginAtZero: true,
                 ticks: {
-                    stepSize: 500,
+                    color: "white",
+                },
+            },
+            x: {
+                ticks: {
+                    color: "white",
                 },
             },
         },
         plugins: {
             title: {
                 display: true,
-                text: "Student Density by Day",
+                text: "Male/Female Chart",
+                color: "white",
             },
             legend: {
-                display: false,
+                labels: {
+                    color: "white",
+                },
+            },
+            tooltip: {
+                backgroundColor: "black",
+            },
+            datalabels: {
+                color: "black",
             },
         },
-    },
-});
+    };
 
-// Set chart container size using CSS
-chart3.canvas.parentNode.style.width = "400px";
-chart3.canvas.parentNode.style.height = "400px";
+    const femaleCount = 26000;
+    const maleCount = 22000;
+
+    const chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Male", "Female"],
+            datasets: [
+                {
+                    label: "male/female",
+                    data: [maleCount, femaleCount],
+                    backgroundColor: ["rgb(54, 162, 235)", "rgb(255, 99, 132)"],
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: options,
+    });
+
+    // Set chart container size using CSS
+    chart.canvas.parentNode.style.width = "230px";
+    chart.canvas.parentNode.style.height = "180px";
+}
 
 
-// Area wire frame
-const areaGeometry = new THREE.BoxGeometry(7, 5, 5);
-const areaWireFrame = new THREE.LineSegments(
-    new THREE.EdgesGeometry(areaGeometry),
-    new THREE.LineBasicMaterial({ color: 0xff0000 })
-);
 
-areaWireFrame.position.set(-6.5, 2.4, 2.5);
-areaWireFrame.rotation.x = -Math.PI / 2;
+function makeSYChart() {
+    // Chart 2
+    const data = {
+        labels: ["Year 1", "Year 2", "Year 3", "Year 4"],
+        datasets: [
+            {
+                data: [12000, 13000, 14000, 9000],
+                backgroundColor: [
+                    "rgb(255, 99, 132)",
+                    "rgb(75, 192, 192)",
+                    "rgb(54, 162, 235)",
+                    "rgb(255, 205, 86)",
+                ],
+                hoverOffset: 4,
+            },
+        ],
+    };
 
-// scene.add(areaWireFrame);
+    const config = {
+        type: "doughnut",
+        data: data,
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Student Year Distribution",
+                },
+                legend: {
+                    position: "bottom",
+                    labels: {
+                        boxWidth: 15,
+                        padding: 20,
+                    },
+                },
+            },
+        },
+    };
+
+    const ctx2 = document.getElementById("myChart2").getContext("2d");
+    const chart2 = new Chart(ctx2, config);
+
+    // Set chart container size using CSS
+    chart2.canvas.parentNode.style.width = "200px";
+    chart2.canvas.parentNode.style.height = "200px";
+
+}
+
+function makeSDChart() {
+
+    // Chart 3
+    const ctx3 = document.getElementById("myChart3");
+    const sundayCount = 2000;
+    const mondayCount = 3500;
+    const tuesdayCount = 2800;
+    const wednesdayCount = 4200;
+    const thursdayCount = 3900;
+
+    const chart3 = new Chart(ctx3, {
+        type: "bar",
+        data: {
+            labels: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+            datasets: [
+                {
+                    label: "Student Density",
+                    data: [sundayCount, mondayCount, tuesdayCount, wednesdayCount, thursdayCount],
+                    backgroundColor: [
+                        " rgba(255, 99, 132, 1)",
+                        "rgba(54, 162, 235, 1)",
+                        "rgba(255, 206, 86, 1) ",
+                        " rgba(75, 192, 192, 1)",
+                        "rgba(153, 102, 255, 1)",
+                    ],
+                    borderColor: [
+                        "rgba(255, 99, 132, 0.2)",
+                        "rgba(54, 162, 235, 0.2)",
+                        "rgba(255, 206, 86, 0.2)",
+                        "rgba(75, 192, 192, 0.2)",
+                        " rgba(153, 102, 255, 0.2)",
+                    ],
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 500,
+                    },
+                },
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Student Density by Day",
+                },
+                legend: {
+                    display: false,
+                },
+            },
+        },
+    });
+
+    // Set chart container size using CSS
+    chart3.canvas.parentNode.style.width = "400px";
+    chart3.canvas.parentNode.style.height = "400px";
+
+
+}
+
+
+
 
 // Area wire frame 2
 
@@ -890,6 +992,7 @@ function changeControls() {
     // currentControls.minDistance = 20;
     currentControls.maxDistance = 90;
     camera.near = 1
+    camera.fov = 25;
     camera.updateProjectionMatrix();
 
 }
@@ -902,6 +1005,7 @@ function activatePointerLock() {
     // create the PointerLockControls instance
     orbit = false;
     currentControls = new PointerLockControls(camera, document.body);
+    camera.fov = 50;
     camera.near = 0.1
     camera.updateProjectionMatrix();
 }
@@ -925,13 +1029,51 @@ let oldElapsedTime = 0;
 gui.close();
 
 
+
+// camera space bar rise 
+
+const elevationIncrement = 0.02;
+
+// Flag variables to indicate if specific keys are pressed
+let spaceBarPressed = false;
+let shiftKeyPressed = false;
+
+// Event listener to listen for the keydown and keyup events
+window.addEventListener('keydown', function (event) {
+    if (event.code === 'Space') {
+        spaceBarPressed = true;
+    } else if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+        shiftKeyPressed = true;
+    }
+});
+
+window.addEventListener('keyup', function (event) {
+    if (event.code === 'Space') {
+        spaceBarPressed = false;
+    } else if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+        shiftKeyPressed = false;
+    }
+});
+
 const tick = () => {
     // Calculate elapsed time and delta time
     const elapsedTime = clock.getElapsedTime();
     const deltaTime = elapsedTime - oldElapsedTime;
     oldElapsedTime = elapsedTime;
 
+    // camera space bar rise
 
+    if (!orbit) {
+
+        if (spaceBarPressed) {
+            camera.position.y += elevationIncrement;
+        }
+
+        // If shift key is pressed, move the camera down
+        if (shiftKeyPressed) {
+            camera.position.y -= elevationIncrement;
+        }
+    }
 
     // Update controls if locked
     if (controls.isLocked === true) {
