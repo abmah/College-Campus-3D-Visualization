@@ -787,11 +787,11 @@ function makeSDChart() {
 
     // Chart 3
     const ctx3 = document.getElementById("myChart3");
-    const sundayCount = 2000;
-    const mondayCount = 3500;
-    const tuesdayCount = 2800;
-    const wednesdayCount = 4200;
-    const thursdayCount = 3900;
+    const sundayCount = 11000;
+    const mondayCount = 6000;
+    const tuesdayCount = 13000;
+    const wednesdayCount = 5400;
+    const thursdayCount = 12100;
 
     const chart3 = new Chart(ctx3, {
         type: "bar",
